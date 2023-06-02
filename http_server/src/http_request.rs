@@ -7,7 +7,7 @@ enum RequestMethod {
 }
 
 #[derive(Debug)]
-enum HttpVersion {
+pub enum HttpVersion {
     V1,
     V2,
 }
@@ -22,7 +22,7 @@ pub struct RequestLine {
 #[derive(Debug)]
 enum RequestBody {
     Content(String),
-    NONE,
+    None,
 }
 
 #[derive(Debug)]
@@ -69,14 +69,14 @@ impl From<&str> for RequestLine {
         let resource = word.next().unwrap();
         let version = HttpVersion::from(word.next().unwrap());
         return RequestLine {
-            method: method,
+            method,
             resource: resource.to_string(),
-            version: version,
+            version,
         };
     }
 }
 
-fn process_header_line(s: &str) -> (String, String) {
+pub fn process_header_line(s: &str) -> (String, String) {
     let mut header_items = s.split(":");
     let mut key = String::from("");
     let mut value = String::from("");
@@ -94,7 +94,7 @@ impl From<&str> for HttpRequest {
     fn from(http_request: &str) -> Self {
         let mut request_line = RequestLine::new();
         let mut request_header = HashMap::new();
-        let mut request_body = RequestBody::NONE;
+        let mut request_body = RequestBody::None;
         for line in http_request.lines() {
             if line.contains("HTTP") {
                 request_line = RequestLine::from(line);
@@ -106,9 +106,9 @@ impl From<&str> for HttpRequest {
             }
         }
         HttpRequest {
-            request_line: request_line,
-            request_header: request_header,
-            request_body: request_body,
+            request_line,
+            request_header,
+            request_body,
         }
     }
 }
