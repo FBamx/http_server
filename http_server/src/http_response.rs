@@ -1,14 +1,12 @@
 use std::collections::HashMap;
-use std::fmt::format;
 
-use crate::http_request::process_header_line;
 use crate::http_request::HttpVersion;
 
 #[derive(Debug)]
 pub struct ResponseLine {
-    pub http_version: HttpVersion,
-    pub status_code: String,
-    pub status_message: String,
+    http_version: HttpVersion,
+    status_code: String,
+    status_message: String,
 }
 
 #[derive(Debug)]
@@ -19,9 +17,9 @@ pub enum ResponseBody {
 
 #[derive(Debug)]
 pub struct HttpResponse {
-    pub response_line: ResponseLine,
-    pub response_header: HashMap<String, String>,
-    pub response_body: ResponseBody,
+    response_line: ResponseLine,
+    response_header: HashMap<String, String>,
+    response_body: ResponseBody,
 }
 
 impl From<&str> for ResponseLine {
@@ -54,36 +52,11 @@ impl From<&ResponseLine> for String {
 }
 
 impl ResponseLine {
-    fn new() -> Self {
+    pub fn new(http_version: HttpVersion, status_code: String, status_message: String) -> Self {
         ResponseLine {
-            http_version: HttpVersion::V1,
-            status_code: String::from("200"),
-            status_message: String::from("OK"),
-        }
-    }
-}
-
-impl From<&str> for HttpResponse {
-    fn from(http_response: &str) -> Self {
-        let mut response_line = ResponseLine::new();
-        let mut response_header = HashMap::new();
-        let mut response_body = ResponseBody::None;
-
-        for line in http_response.lines() {
-            if line.contains("HTTP") {
-                response_line = ResponseLine::from(line);
-            } else if line.contains(":") {
-                let (key, value) = process_header_line(line);
-                response_header.insert(key, value);
-            } else {
-                response_body = ResponseBody::Content(line.to_string());
-            }
-        }
-
-        HttpResponse {
-            response_line,
-            response_header,
-            response_body,
+            http_version,
+            status_code,
+            status_message,
         }
     }
 }
@@ -102,5 +75,19 @@ impl From<&HttpResponse> for String {
         };
         let response = format!("{}\r\n{}\r\n{}", response_line, headers, response_body);
         response
+    }
+}
+
+impl HttpResponse {
+    pub fn new(
+        response_line: ResponseLine,
+        response_header: HashMap<String, String>,
+        response_body: ResponseBody,
+    ) -> Self {
+        HttpResponse {
+            response_line,
+            response_header,
+            response_body,
+        }
     }
 }

@@ -11,18 +11,17 @@ use std::str;
 use std::{io::Read, io::Write, net::TcpListener};
 
 fn main() {
-    let mut header = HashMap::new();
-    header.insert("Content-type".to_string(), "text/html".to_string());
-    header.insert("kkk".to_string(), "vv".to_string());
-    let response = HttpResponse {
-        response_line: ResponseLine {
-            http_version: HttpVersion::V1,
-            status_code: String::from("200"),
-            status_message: String::from("OK"),
-        },
-        response_header: header,
-        response_body: ResponseBody::Content("<h1>hello world</h1>".to_string()),
-    };
+    let reponse_line = ResponseLine::new(HttpVersion::V1, String::from("200"), String::from("OK"));
+    let mut response_header = HashMap::new();
+    response_header.insert("Content-type".to_string(), "text/html".to_string());
+    response_header.insert("kkk".to_string(), "vv".to_string());
+
+    let mut file = std::fs::File::open("./http_server/static/index.html").unwrap();
+    let mut content = String::new();
+    file.read_to_string(&mut content).unwrap();
+
+    let response_body = ResponseBody::Content(content);
+    let response = HttpResponse::new(reponse_line, response_header, response_body);
 
     let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
     println!("Running on port 8080");
