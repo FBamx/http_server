@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::format;
 
 use crate::http_request::process_header_line;
 use crate::http_request::HttpVersion;
@@ -90,12 +91,16 @@ impl From<&str> for HttpResponse {
 impl From<&HttpResponse> for String {
     fn from(http_response: &HttpResponse) -> String {
         let response_line = String::from(&http_response.response_line);
-        // WARN: just satifies one situation that only have one header
-        let mut header = String::from("");
+        let mut headers = String::from("");
         for (k, v) in &http_response.response_header {
-            header = format!("{}:{}\r\n", k, v);
+            let header = format!("{}:{}\r\n", k, v);
+            headers = format!("{}{}", headers, header);
         }
-        let response = format!("{}\r\n{}\r\n<h1>hello world</h1>", response_line, header);
+        let response_body = match &http_response.response_body {
+            ResponseBody::Content(content) => String::from(content),
+            ResponseBody::None => String::from(""),
+        };
+        let response = format!("{}\r\n{}\r\n{}", response_line, headers, response_body);
         response
     }
 }

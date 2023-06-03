@@ -13,6 +13,7 @@ use std::{io::Read, io::Write, net::TcpListener};
 fn main() {
     let mut header = HashMap::new();
     header.insert("Content-type".to_string(), "text/html".to_string());
+    header.insert("kkk".to_string(), "vv".to_string());
     let response = HttpResponse {
         response_line: ResponseLine {
             http_version: HttpVersion::V1,
@@ -20,11 +21,8 @@ fn main() {
             status_message: String::from("OK"),
         },
         response_header: header,
-        response_body: ResponseBody::None,
+        response_body: ResponseBody::Content("<h1>hello world</h1>".to_string()),
     };
-
-    let response_str = String::from(&response);
-    println!("{}", response_str);
 
     let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
     println!("Running on port 8080");
@@ -39,6 +37,8 @@ fn main() {
         println!("{:#?}", http_request);
 
         // return response
+        let response_str = String::from(&response);
+        println!("{}", response_str);
         stream.write(response_str.as_bytes()).unwrap();
     }
 }
